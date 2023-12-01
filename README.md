@@ -1,4 +1,4 @@
-#tgsuxx
+# tgsuxx
 Telegram bot for car rental. Built around the pyTelegramBotAPI library.
 Created as a part of practical work at the university.
 
