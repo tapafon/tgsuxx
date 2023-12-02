@@ -158,7 +158,8 @@ try:
 <b>id користувача: </b><i>""" + str(message.chat.id) + """</i>
 <b>handle користувача: </b><i>""" + str(message.chat.username) + """</i>
 <b>Ім'я користувача: </b><i>""" + str(message.chat.first_name) + """</i>
-<b>Прізвище користувача: </b><i>""" + str(message.chat.last_name) + """</i><b>Фото користувача: </b><i>""" + str(message.chat.photo) + """</i>
+<b>Прізвище користувача: </b><i>""" + str(message.chat.last_name) + """</i>
+<b>Фото користувача: </b><i>""" + str(message.chat.photo) + """</i>
 <b>Станція прокату: </b><i>""" + loc + """</i>
 <b>Машина: </b><i>""" + mdl + """</i>
 <b>Кількість днів прокату: </b><i>""" + str(days) + """</i>
