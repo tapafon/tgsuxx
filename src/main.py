@@ -176,18 +176,34 @@ def finish(message, loc, mdl, price, days, cost):
     elif message.text == "Онлайн":
         desc = "Оренда " + mdl + " в місті " + loc + " на " + str(days) + " день/дня/днів"
         final_price = [telebot.types.LabeledPrice("Ціна", amount=int(cost*100))]
-        bot.send_invoice(message.chat.id, "Оренда автомобіля", desc, "rent", INVOICE_PROVIDER_TOKEN, "UAH", final_price, need_name=True, need_email=True, need_phone_number=True, protect_content=True, send_email_to_provider=True, reply_markup=rm)
+        bot.send_message(message.chat.id, "Для підтвердження бронювання виконайте оплату ↓", reply_markup=rm)
+        bot.send_invoice(message.chat.id, "Оренда автомобіля", desc, "rent", INVOICE_PROVIDER_TOKEN, "UAH", final_price, need_name=True, need_email=True, need_phone_number=True, protect_content=True, send_email_to_provider=True)
         print(info)
         bot.send_message(OWNER_ID, info)
     else:
         bot.send_message(message.chat.id, "Будь ласка, зробіть ваш вибір.")
         step_final(message, loc, mdl, price, days, cost)
 
-# Успішна оплата (яка завжди неуспішна)
+# Додаткове підтведження оплати
+@bot.pre_checkout_query_handler(func=lambda query: True)
+def process_pre_checkout_query(pre_checkout_query):
+    random.seed(a=None, version=2)
+    rd = (random.randint(1, 2))
+    match rd: # Рандом
+        case 1:
+            bot.answer_pre_checkout_query(pre_checkout_query.id, True)
+        case 2:
+            bot.answer_pre_checkout_query(pre_checkout_query.id, False, "На жаль, даного автомобіля вже немає в наявності")
+            info = "<i>Замовлення з оплатою онлайн було скасоване великим рандомом.</i>"
+            print(info)
+            bot.send_message(OWNER_ID, info)
+
+
+# Успішна оплата
 @bot.message_handler(content_types=['successful_payment'])
 def got_payment(message):
     bot.send_message(message.chat.id, 'Дякуємо за оплату! Бронювання підтверджене.')
-    info = "<i>Замовлення від " + message.chat.id + " було оплачене.</i>"
+    info = "<i>Замовлення від " + str(message.chat.id) + " було оплачене.</i>"
     print(info)
     bot.send_message(OWNER_ID, info)
 
