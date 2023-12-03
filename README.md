@@ -4,8 +4,9 @@ Created as a part of practical work at the university.
 
 ### Launching
 To run, first install all the libraries:
-`pip install -r requiremens.txt`.
-Then you can run the main.py file. Don't forget to get your tokens from https://t.me/BotFather.
+`pip install -r requiremens.txt`. Creating virtual enviroument (venv) is recommended but not mandatory.
+After that, you need to get your tokens from https://t.me/BotFather. Rename tokens_template.py to tokens.py and paste your tokens there.
+Finally, you can run the main.py file.
 
 ### Licence
 Published under the MIT licence. The following is the text of this licence:
