@@ -5,7 +5,6 @@ import re
 import random
 import tokens
 
-OWNER_ID = tokens.OWNER_ID
 API_TOKEN = tokens.API_TOKEN
 INVOICE_PROVIDER_TOKEN = tokens.INVOICE_PROVIDER_TOKEN
 bot = telebot.TeleBot(API_TOKEN, parse_mode='HTML')
@@ -172,14 +171,16 @@ def finish(message, loc, mdl, price, days, cost):
     if message.text == "На місці":
         bot.send_message(message.chat.id, "Бронювання підтверджене. Не забудьте з собою кредитну карту (або дві) для оплати.", reply_markup=rm)
         print(info)
-        bot.send_message(OWNER_ID, info)
+        for i in range(0, len(tokens.admins)):
+            bot.send_message(tokens.admins[i], info)
     elif message.text == "Онлайн":
         desc = "Оренда " + mdl + " в місті " + loc + " на " + str(days) + " день/дня/днів"
         final_price = [telebot.types.LabeledPrice("Ціна", amount=int(cost*100))]
         bot.send_message(message.chat.id, "Для підтвердження бронювання виконайте оплату ↓", reply_markup=rm)
         bot.send_invoice(message.chat.id, "Оренда автомобіля", desc, "rent", INVOICE_PROVIDER_TOKEN, "UAH", final_price, need_name=True, need_email=True, need_phone_number=True, protect_content=True, send_email_to_provider=True)
         print(info)
-        bot.send_message(OWNER_ID, info)
+        for i in range(0, len(tokens.admins)):
+            bot.send_message(tokens.admins[i], info)
     else:
         bot.send_message(message.chat.id, "Будь ласка, зробіть ваш вибір.")
         step_final(message, loc, mdl, price, days, cost)
@@ -196,7 +197,8 @@ def process_pre_checkout_query(pre_checkout_query):
             bot.answer_pre_checkout_query(pre_checkout_query.id, False, "На жаль, даного автомобіля вже немає в наявності")
             info = "<i>Замовлення з оплатою онлайн було скасоване великим рандомом.</i>"
             print(info)
-            bot.send_message(OWNER_ID, info)
+            for i in range(0, len(tokens.admins)):
+                bot.send_message(tokens.admins[i], info)
 
 
 # Успішна оплата
@@ -205,15 +207,22 @@ def got_payment(message):
     bot.send_message(message.chat.id, 'Дякуємо за оплату! Бронювання підтверджене.')
     info = "<i>Замовлення від " + str(message.chat.id) + " було оплачене.</i>"
     print(info)
-    bot.send_message(OWNER_ID, info)
+    for i in range(0, len(tokens.admins)):
+        bot.send_message(tokens.admins[i], info)
 
 # Адмін панель
 @bot.message_handler(commands=['admin'])
 def adminpanel(message):
-    if message.chat.id != OWNER_ID: # Постороннім вхід заборонено!
+    admin = False
+    for i in range(0, len(tokens.admins)):
+        if message.chat.id == tokens.admins[i] :
+            admin = True
+            break
+    if not admin: # Постороннім вхід заборонено!
         unauth = "<i>спроба несанкціонованого доступу</i>"
         bot.send_message(message.chat.id, "<b>ПОСТОРОННІМ ВХІД ЗАБОРОНЕНО!!!</b>")
-        bot.send_message(OWNER_ID, unauth)
+        for i in range(0, len(tokens.admins)):
+            bot.send_message(tokens.admins[i], unauth)
         print(unauth)
         return
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
