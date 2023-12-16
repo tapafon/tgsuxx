@@ -18,18 +18,38 @@ def send_welcome(message):
 
 # Часто задаваємі питання
 @bot.message_handler(commands=['faq'])
+def select_faq(message):
+    # "клавіатура". Натискання на будь-яку кнопку відправляє текст на ній, нібито користувач сам його набрав і відправив
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    button1 = telebot.types.KeyboardButton('ЧИ МІЙ ПРОКАТНИЙ АВТОМОБІЛЬ ПЕРЕДАЄТЬСЯ З ПОВНИМ БАКОМ?')
+    button2 = telebot.types.KeyboardButton('ЯК Я МОЖУ ЗАПЛАТИТИ ЗА СВОЄ АВТО?')
+    button3 = telebot.types.KeyboardButton('ЯКОЮ Є СУМА ДОДАТКОВИХ ПЛАТЕЖІВ?')
+    button4 = telebot.types.KeyboardButton('ЩО МЕНІ НЕОБХІДНО МАТИ З СОБОЮ, КОЛИ Я ОТРИМУЮ АВТО?')
+    button5 = telebot.types.KeyboardButton('ЧИ МОЖНА ПЕРЕТИНАТИ КОРДОН?')
+    button6 = telebot.types.KeyboardButton('ЯКЩО ТРАПИЛАСЯ НЕСПРАВНІСТЬ ЧИ ПОТРІБНА ДОПОМОГА В ДОРОЗІ?')
+    keyboard.add(button1, button2, button3, button4, button5, button6)
+    s = bot.send_message(message.chat.id, "Виберіть питання із списку нижче:", reply_markup=keyboard)
+    bot.register_next_step_handler(s, send_faq)
+
 def send_faq(message):
-    bot.send_message(message.chat.id, texts_faq.faq1)
-    bot.send_message(message.chat.id, texts_faq.faq2)
-    bot.send_message(message.chat.id, texts_faq.faq3)
-    bot.send_message(message.chat.id, texts_faq.faq4)
-    bot.send_message(message.chat.id, texts_faq.faq5)
-    bot.send_message(message.chat.id, texts_faq.faq6)
+    rm = telebot.types.ReplyKeyboardRemove(selective=False)
+    match message.text:
+        case 'ЧИ МІЙ ПРОКАТНИЙ АВТОМОБІЛЬ ПЕРЕДАЄТЬСЯ З ПОВНИМ БАКОМ?':
+            bot.send_message(message.chat.id, texts_faq.faq1, reply_markup=rm)
+        case 'ЯК Я МОЖУ ЗАПЛАТИТИ ЗА СВОЄ АВТО?':
+            bot.send_message(message.chat.id, texts_faq.faq2, reply_markup=rm)
+        case 'ЯКОЮ Є СУМА ДОДАТКОВИХ ПЛАТЕЖІВ?':
+            bot.send_message(message.chat.id, texts_faq.faq3, reply_markup=rm)
+        case 'ЩО МЕНІ НЕОБХІДНО МАТИ З СОБОЮ, КОЛИ Я ОТРИМУЮ АВТО?':
+            bot.send_message(message.chat.id, texts_faq.faq4, reply_markup=rm)
+        case 'ЧИ МОЖНА ПЕРЕТИНАТИ КОРДОН?':
+            bot.send_message(message.chat.id, texts_faq.faq5, reply_markup=rm)
+        case 'ЯКЩО ТРАПИЛАСЯ НЕСПРАВНІСТЬ ЧИ ПОТРІБНА ДОПОМОГА В ДОРОЗІ?':
+            bot.send_message(message.chat.id, texts_faq.faq6, reply_markup=rm)
 
 # Власне, оренда (крок вибору локації)
 @bot.message_handler(commands=['rent'])
 def step_one(message):
-    # "клавіатура". Натискання на будь-яку кнопку відправляє текст на ній, нібито користувач сам його набрав і відправив
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, input_field_placeholder="Введіть назву міста або виберіть його із списку...")
     button1 = telebot.types.KeyboardButton('Київ')
     button2 = telebot.types.KeyboardButton('Харків')
