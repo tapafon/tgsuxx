@@ -46,6 +46,8 @@ def send_faq(message):
             bot.send_message(message.chat.id, texts_faq.faq5, reply_markup=rm)
         case 'ЯКЩО ТРАПИЛАСЯ НЕСПРАВНІСТЬ ЧИ ПОТРІБНА ДОПОМОГА В ДОРОЗІ?':
             bot.send_message(message.chat.id, texts_faq.faq6, reply_markup=rm)
+        case _:
+            bot.send_message(message.chat.id, "На жаль, я не можу відповісти на це питання.", reply_markup=rm)
 
 # Власне, оренда (крок вибору локації)
 @bot.message_handler(commands=['rent'])
@@ -75,10 +77,6 @@ def step_two(message, loc=None):
             for i in range(0, len(database.kharkiv)):
                 button = telebot.types.KeyboardButton(database.kharkiv[i]['name'] + " (" + str(database.kharkiv[i]['price']) + " грн/добу)")
                 keyboard.add(button)
-        case "Бориспіль":
-            bot.send_message(message.chat.id, "На жаль, в цій точці машин немає :(")
-            step_one(message)
-            return
         case "Одеса":
             for i in range(0, len(database.odesa)):
                 button = telebot.types.KeyboardButton(database.odesa[i]['name'] + " (" + str(database.odesa[i]['price']) + " грн/добу)")
@@ -91,6 +89,10 @@ def step_two(message, loc=None):
             for i in range(0, len(database.vinnisa)):
                 button = telebot.types.KeyboardButton(database.vinnisa[i]['name'] + " (" + str(database.vinnisa[i]['price']) + " грн/добу)")
                 keyboard.add(button)
+        case _:
+            bot.send_message(message.chat.id, "На жаль, в цій точці машин немає :(")
+            step_one(message)
+            return
     text="""
 <b>Вибрана локація: </b><i>""" + loc + """</i>
 Яку саме машину ви хочете орендувати?
@@ -101,16 +103,24 @@ def step_two(message, loc=None):
 
 # Вибір кількості днів (крок 3)
 def step_three(message, loc, mdl=None, price=None):
+    fail = False
     if mdl == None:
         mdl = message.text.split(" (")[0] # парсимо назву машини
     if price == None:
-        tmp = re.findall(r'\d+', message.text.split(" (")[1]) # парсимо ціну за добу
-        price = int(tmp[0])
+        try:
+            tmp = re.findall(r'\d+', message.text.split(" (")[1]) # парсимо ціну за добу
+            price = int(tmp[0])
+        except:
+            fail = True
     text1 = """
 <b>Вибрана машина: </b><i>""" + mdl + """</i>
 Оренда цієї машини буде коштувати <i>""" + str(price) + """ грн/добу.</i>
 На скільки днів ви будете орендовувати машину?
 """
+    if fail:
+        bot.send_message(message.chat.id, "Неправильний формат машини. Будь ласка, виберіть її із списку.")
+        step_two(message, loc)
+        return
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, input_field_placeholder="Введіть кількість днів або виберіть популярний варіант...")
     button1 = telebot.types.KeyboardButton('1')
     button2 = telebot.types.KeyboardButton('7')
@@ -126,9 +136,16 @@ def step_three(message, loc, mdl=None, price=None):
 
 # Перевірка даних (крок 4)
 def step_four(message, loc, mdl, price, days=None):
+    fail = False
     if days == None:
-        days = int(message.text)
-    if days <= 0:
+        try:
+            days = int(message.text)
+        except:
+            fail = True
+    if not fail:
+        if days <= 0:
+            fail = True
+    if fail:
         bot.send_message(message.chat.id, "Неправильний формат даних")
         step_three(message, loc, mdl, price)
     else:
